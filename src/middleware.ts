@@ -54,6 +54,14 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // Public routes — skip auth entirely for performance
+  const publicPaths = ['/blog', '/rss.xml', '/sitemap.xml', '/robots.txt']
+  const isPublicPath = publicPaths.some(p => request.nextUrl.pathname.startsWith(p))
+  if (isPublicPath) return response
+
+  // Cron routes — authenticated via Bearer token, not cookies
+  if (request.nextUrl.pathname.startsWith('/api/cron/')) return response
+
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protect dashboard routes

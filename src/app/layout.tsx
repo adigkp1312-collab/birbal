@@ -15,8 +15,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "LinkedIn Ghost - Viral Post Generator",
-  description: "AI-powered LinkedIn post generator that writes in your voice",
+  title: "Birbal — AI-Powered Blog CMS",
+  description: "Automated SEO blog platform. AI agents discover topics, research competitors, write grounded articles, and auto-publish after quality review.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
 };
 
 export default function RootLayout({
