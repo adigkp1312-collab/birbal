@@ -2,12 +2,18 @@ import { createClient } from '@supabase/supabase-js'
 import { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  )
-
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://birbal.app'
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    return [
+      { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
+      { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    ]
+  }
+
+  const supabase = createClient(url, key)
 
   // Fetch all published articles
   const { data: articles } = await supabase

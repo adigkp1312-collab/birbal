@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 export const revalidate = 3600 // ISR: revalidate every 1 hour
 
 function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return null
+  return createClient(url, key)
 }
 
 interface Article {
@@ -37,6 +37,16 @@ export default async function BlogHomePage({
   searchParams: { page?: string }
 }) {
   const supabase = getSupabase()
+  if (!supabase) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center py-20">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No articles yet</h2>
+          <p className="text-gray-600">Check back soon — new content is being generated.</p>
+        </div>
+      </div>
+    )
+  }
   const page = parseInt(searchParams.page || '1', 10)
   const limit = 12
   const offset = (page - 1) * limit

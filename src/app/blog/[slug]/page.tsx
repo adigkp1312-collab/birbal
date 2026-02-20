@@ -8,15 +8,16 @@ import { RelatedPosts } from '@/components/blog/RelatedPosts'
 export const revalidate = 3600 // ISR: 1 hour
 
 function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return null
+  return createClient(url, key)
 }
 
 // Generate static params for all published articles
 export async function generateStaticParams() {
   const supabase = getSupabase()
+  if (!supabase) return []
   const { data } = await supabase
     .from('blog_articles')
     .select('slug')
@@ -33,6 +34,7 @@ export async function generateMetadata({
   params: { slug: string }
 }): Promise<Metadata> {
   const supabase = getSupabase()
+  if (!supabase) return { title: 'Article Not Found' }
   const { data: article } = await supabase
     .from('blog_articles')
     .select('title, meta_description, seo, featured_image_url, published_at, author, slug')
@@ -75,6 +77,7 @@ export default async function BlogPostPage({
   params: { slug: string }
 }) {
   const supabase = getSupabase()
+  if (!supabase) notFound()
 
   const { data: article, error } = await supabase
     .from('blog_articles')

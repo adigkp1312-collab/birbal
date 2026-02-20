@@ -6,10 +6,10 @@ import { BlogCard } from '@/components/blog/BlogCard'
 export const revalidate = 3600
 
 function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return null
+  return createClient(url, key)
 }
 
 export async function generateMetadata({
@@ -26,6 +26,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   const supabase = getSupabase()
+  if (!supabase) return []
   const { data } = await supabase
     .from('blog_articles')
     .select('category')
@@ -43,6 +44,7 @@ export default async function CategoryPage({
   searchParams: { page?: string }
 }) {
   const supabase = getSupabase()
+  if (!supabase) return <div className="text-center py-20"><p>Database not configured.</p></div>
   const category = decodeURIComponent(params.category)
   const page = parseInt(searchParams.page || '1', 10)
   const limit = 12

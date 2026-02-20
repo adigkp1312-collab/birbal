@@ -2,21 +2,23 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  )
-
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://birbal.app'
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  const { data: articles } = await supabase
+  let articles: any[] = []
+  if (url && key) {
+    const supabase = createClient(url, key)
+    const { data } = await supabase
     .from('blog_articles')
     .select('slug, title, meta_description, author, published_at, category')
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .limit(20)
+    articles = data || []
+  }
 
-  const items = (articles || [])
+  const items = articles
     .map(article => `
     <item>
       <title><![CDATA[${article.title}]]></title>
